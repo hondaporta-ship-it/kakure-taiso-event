@@ -9,53 +9,53 @@
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Zen+Kaku+Gothic+New:wght@500;700;900&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0a0e0c;
-    --panel:#10171300;
-    --cyan:#3ff0c8;
-    --cyan-dim:#1c6b58;
-    --amber:#ffcf4a;
-    --red:#ff5a4d;
-    --line:rgba(63,240,200,.18);
-    --txt:#dff5ee;
+    --bg:#0a0e0c; --bg2:#0e131a;
+    --cyan:#3ff0c8; --cyan-dim:#1c6b58;
+    --amber:#ffcf4a; --red:#ff5a4d;
+    --line:rgba(63,240,200,.18); --txt:#dff5ee;
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
   html,body{height:100%;}
   body{
-    font-family:"Zen Kaku Gothic New",sans-serif;
-    color:var(--txt);
-    background:radial-gradient(circle at 50% -10%, #11231d 0%, #0a0e0c 60%);
-    min-height:100vh;
-    display:flex;flex-direction:column;align-items:center;
+    font-family:"Zen Kaku Gothic New",sans-serif;color:var(--txt);
+    background:radial-gradient(circle at 50% -10%,#11231d 0%,#0a0e0c 60%);
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;
     padding:16px 14px 36px;overflow-x:hidden;
   }
   .wrap{width:100%;max-width:380px;}
 
+  /* ── Topbar ── */
   .topbar{
     display:flex;justify-content:space-between;align-items:center;
     font-family:"JetBrains Mono",monospace;font-size:10.5px;
     color:var(--cyan-dim);letter-spacing:.06em;margin-bottom:10px;
   }
   .topbar b{color:var(--cyan);}
-  .topbar-right{display:flex;align-items:center;gap:10px;}
   .rec{display:flex;align-items:center;gap:5px;color:var(--red);}
   .rec i{width:8px;height:8px;border-radius:50%;background:var(--red);
     animation:rec 1.2s infinite;box-shadow:0 0 6px var(--red);}
   @keyframes rec{50%{opacity:.2;}}
-  .sound-btn{
-    font-family:"JetBrains Mono",monospace;font-size:10px;
-    background:rgba(63,240,200,.08);border:1px solid rgba(63,240,200,.3);
-    border-radius:6px;color:var(--cyan);padding:3px 8px;cursor:pointer;
-    letter-spacing:.04em;transition:all .2s;line-height:1;
-  }
-  .sound-btn.muted{color:var(--cyan-dim);background:transparent;border-color:var(--line);}
 
-  /* ===== モニター（CAM画面） ===== */
+  /* ── サウンドコントロールバー ── */
+  .sound-bar{
+    display:flex;gap:6px;margin-bottom:10px;
+  }
+  .s-btn{
+    flex:1;display:flex;align-items:center;justify-content:center;gap:5px;
+    font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:700;
+    padding:8px 0;border-radius:9px;cursor:pointer;border:none;
+    letter-spacing:.04em;transition:all .2s;
+  }
+  .s-btn.on {background:rgba(63,240,200,.12);color:var(--cyan);border:1px solid rgba(63,240,200,.35);}
+  .s-btn.off{background:rgba(255,255,255,.03);color:#3a564d;border:1px solid rgba(255,255,255,.06);}
+  .s-btn .ico{font-size:15px;line-height:1;}
+
+  /* ── モニター ── */
   .monitor{
-    position:relative;
+    position:relative;               /* ★ コメントバブルの基準 */
     background:linear-gradient(180deg,#0c130f,#070b09);
-    border:1px solid var(--line);
-    border-radius:14px;
-    padding:0;overflow:hidden;
+    border:1px solid var(--line);border-radius:14px;
+    overflow:hidden;
     box-shadow:inset 0 0 30px rgba(0,0,0,.7),0 14px 30px rgba(0,0,0,.5);
   }
   .scanlines{position:absolute;inset:0;pointer-events:none;z-index:3;
@@ -66,24 +66,28 @@
   @keyframes scan{0%{top:-60px;}100%{top:100%;}}
 
   .cam-meta{position:absolute;z-index:4;font-family:"JetBrains Mono",monospace;
-    font-size:9.5px;color:var(--cyan);letter-spacing:.05em;text-shadow:0 0 4px rgba(63,240,200,.5);}
+    font-size:9.5px;color:var(--cyan);letter-spacing:.05em;
+    text-shadow:0 0 4px rgba(63,240,200,.5);}
   .cam-tl{top:10px;left:12px;}
   .cam-tr{top:10px;right:12px;color:var(--amber);}
   .cam-bl{bottom:10px;left:12px;color:var(--cyan-dim);}
   .cam-br{bottom:10px;right:12px;color:var(--cyan-dim);}
 
-  /* コメントバブル（モニター内） */
+  /* ── コメントバブル（モニター内） ── */
   .comment-bubble{
     position:absolute;bottom:28px;left:12px;right:12px;z-index:10;
-    background:rgba(8,18,14,.88);border:1px solid rgba(63,240,200,.25);
+    background:rgba(6,14,10,.9);border:1px solid rgba(63,240,200,.28);
     border-radius:8px;padding:7px 10px;
-    font-family:"Zen Kaku Gothic New",sans-serif;font-size:11.5px;line-height:1.55;
-    color:var(--amber);display:none;backdrop-filter:blur(4px);
-    animation:cbfade .3s;
+    font-family:"Zen Kaku Gothic New",sans-serif;font-size:12px;line-height:1.55;
+    color:var(--amber);
+    opacity:0;pointer-events:none;
+    transition:opacity .25s;
   }
-  .comment-bubble.active{display:block;}
-  .comment-bubble .mic{font-family:"JetBrains Mono",monospace;font-size:9px;color:var(--cyan);display:block;margin-bottom:2px;letter-spacing:.06em;}
-  @keyframes cbfade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  .comment-bubble.active{opacity:1;}
+  .comment-bubble .mic{
+    font-family:"JetBrains Mono",monospace;font-size:9px;
+    color:var(--cyan);display:block;margin-bottom:3px;letter-spacing:.06em;
+  }
 
   .stage{position:relative;height:300px;display:flex;align-items:center;justify-content:center;z-index:1;}
   .grid-floor{position:absolute;bottom:0;left:0;right:0;height:120px;z-index:0;
@@ -92,6 +96,7 @@
       repeating-linear-gradient(0deg,transparent 0 26px,var(--line) 26px 27px);
     transform:perspective(180px) rotateX(60deg);transform-origin:bottom;opacity:.5;}
 
+  /* ── SVGキャラ アニメ ── */
   svg.actor{width:150px;height:240px;filter:drop-shadow(0 0 6px rgba(63,240,200,.25));}
   #g-feet{transform-origin:100px 300px;}
   body[data-move="feet"] #g-feet{animation:feet 1.4s ease-in-out infinite;}
@@ -107,12 +112,14 @@
   body[data-move="wrist"] #g-hand{animation:wrist 1.2s linear infinite;transform-origin:150px 200px;}
   @keyframes wrist{0%{transform:rotate(0);}100%{transform:rotate(360deg);}}
 
+  /* ── 種目ヘッダ ── */
   .exhead{display:flex;justify-content:space-between;align-items:flex-start;margin:14px 2px 8px;}
   .exnum{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--cyan-dim);letter-spacing:.08em;}
   .extitle{font-size:21px;font-weight:900;line-height:1.2;margin-top:3px;}
   .extag{display:inline-block;margin-top:6px;font-size:10.5px;font-weight:700;
     color:#06120e;background:var(--cyan);padding:3px 9px;border-radius:20px;}
 
+  /* タイマーリング */
   .ring{position:relative;width:64px;height:64px;flex-shrink:0;}
   .ring svg{transform:rotate(-90deg);}
   .ring .bg{fill:none;stroke:rgba(63,240,200,.15);stroke-width:3;}
@@ -128,11 +135,13 @@
   .camouflage{display:block;margin-top:8px;font-size:12px;color:var(--amber);}
   .camouflage::before{content:"🥷 偽装：";font-weight:700;}
 
+  /* 進捗ドット */
   .dots{display:flex;gap:6px;justify-content:center;margin:6px 0 16px;}
   .dots i{width:8px;height:8px;border-radius:50%;background:rgba(63,240,200,.2);transition:all .3s;}
   .dots i.done{background:var(--cyan-dim);}
   .dots i.now{background:var(--cyan);box-shadow:0 0 8px var(--cyan);transform:scale(1.35);}
 
+  /* ボタン */
   .btn{width:100%;font-family:"Zen Kaku Gothic New",sans-serif;font-weight:800;font-size:16px;
     padding:16px;border:none;border-radius:13px;cursor:pointer;letter-spacing:.04em;
     background:linear-gradient(180deg,#48ffd6,var(--cyan) 60%,#1fbf9c);color:#06120e;
@@ -141,6 +150,7 @@
   .row{display:flex;gap:8px;margin-top:9px;}
   .btn.sub{background:#121a16;color:var(--cyan);box-shadow:inset 0 0 0 1px var(--line);font-size:13px;padding:12px;}
 
+  /* スタート/完了画面 */
   .screen{display:none;}
   .screen.active{display:block;animation:fade .3s;}
   @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
@@ -163,10 +173,17 @@
 
   <div class="topbar">
     <span>ATS <b>FIELD PROTOCOL</b> · EVENT Vol.01</span>
-    <div class="topbar-right">
-      <button class="sound-btn" id="soundBtn" onclick="toggleSound()">🔊 BGM</button>
-      <span class="rec"><i></i>REC</span>
-    </div>
+    <span class="rec"><i></i>REC</span>
+  </div>
+
+  <!-- ★ サウンドコントロールバー（常時表示） -->
+  <div class="sound-bar">
+    <button class="s-btn on" id="btnBgm" onclick="toggleBgm()">
+      <span class="ico">🎵</span><span>BGM</span>
+    </button>
+    <button class="s-btn on" id="btnVoice" onclick="toggleVoice()">
+      <span class="ico">🎙</span><span>音声ガイド</span>
+    </button>
   </div>
 
   <!-- ===== モニター ===== -->
@@ -177,6 +194,7 @@
     <div class="cam-meta cam-tr" id="camTr">ZONE · LEG</div>
     <div class="cam-meta cam-bl">● 自動追尾</div>
     <div class="cam-meta cam-br" id="camTc">00:00:30</div>
+
     <div class="stage">
       <div class="grid-floor"></div>
       <svg id="actor" class="actor" viewBox="0 0 200 320" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -209,12 +227,13 @@
         </g>
       </svg>
     </div>
-    <!-- コメントバブル -->
+
+    <!-- ★ コメントバブル（position:absolute、monitor基準） -->
     <div class="comment-bubble" id="commentBubble">
       <span class="mic">📻 INSTRUCTOR</span>
       <span id="commentText"></span>
     </div>
-  </div>
+  </div><!-- /monitor -->
 
   <!-- ===== スタート画面 ===== -->
   <div class="screen active" id="sc-start">
@@ -239,7 +258,7 @@
       <div>
         <div class="exnum" id="exNum">EX 01 / 06</div>
         <div class="extitle" id="exTitle">かかと上げ下げ</div>
-        <span class="extag" id="exTag">待機中・バレ度ゼロ</span>
+        <span class="extag">待機中・バレ度ゼロ</span>
       </div>
       <div class="ring">
         <svg viewBox="0 0 36 36" width="64" height="64">
@@ -251,7 +270,7 @@
     </div>
     <div class="inst" id="exInst"></div>
     <div class="dots" id="dots"></div>
-    <button class="btn" id="nextBtn" onclick="nextMove()">次の種目へ ▶</button>
+    <button class="btn" onclick="nextMove()">次の種目へ ▶</button>
     <div class="row">
       <button class="btn sub" onclick="togglePause()" id="pauseBtn">⏸ 一時停止</button>
       <button class="btn sub" onclick="resetProgram()">■ 最初から</button>
@@ -269,23 +288,21 @@
     <div class="foot">EVENT × WELLNESS × AI同好会</div>
   </div>
 
-</div>
+</div><!-- /wrap -->
 
 <script>
-window.addEventListener("error",function(e){if(e&&e.preventDefault)e.preventDefault();},true);
-
 // ===== 種目データ =====
 const MOVES = [
   {title:"かかと上げ下げ", zone:"CALF", move:"feet",
    inst:"その場で<b>かかとをゆっくり上げて、3秒キープ→下ろす</b>。ふくらはぎがじんわり温まる。",
    camo:"気をつけの姿勢で立ってるだけ",
    voice:["第一種目、かかと上げ下げ。かかとをゆっくり持ち上げて、はい、キープ。ゆっくり下ろします。",
-          "はい、続けて。ふくらはぎに力を入れて、ゆっくり。",
+          "はい、続けて。ふくらはぎに力を入れて、ゆっくりと。",
           "あと少しです。最後まで丁寧に。"]},
   {title:"肩甲骨よせ", zone:"BACK", move:"shoulder",
    inst:"<b>両肩をすっと後ろに引いて、肩甲骨を中央に寄せる</b>。5秒キープしてゆるめる。猫背リセット。",
    camo:"案内板を確認しているフリ",
-   voice:["第二種目、肩甲骨よせ。両肩を後ろにすっと引いて、はい、肩甲骨を中央に寄せます。",
+   voice:["第二種目、肩甲骨よせ。両肩を後ろにすっと引いて、肩甲骨を中央に寄せます。",
           "はい、キープして。背筋を伸ばして、ゆっくりと。",
           "あと少し。最後まで意識して。"]},
   {title:"首ゆっくり回し", zone:"NECK", move:"neck",
@@ -293,7 +310,7 @@ const MOVES = [
    camo:"周囲を見回して警戒しているフリ",
    voice:["第三種目、首回し。ゆーっくり首を大きく回します。はい、ゆっくり、ゆっくりと。",
           "反対向きも、ゆっくりと。首の力を抜いて。",
-          "もう少しです。丁寧に。"]},
+          "もう少しです。丁寧に続けて。"]},
   {title:"ドローイン", zone:"CORE", move:"core",
    inst:"<b>お腹を限界までへこませて30秒キープ</b>。呼吸は止めない。立ったままできる体幹トレ。",
    camo:"姿勢よく待機しているだけ",
@@ -311,246 +328,258 @@ const MOVES = [
    camo:"インカムを操作しているフリ",
    voice:["第六種目、手首回し。手首をゆっくり内、外と回します。はい、ゆっくりと。",
           "反対向きも。こわばりをほぐしましょう。",
-          "あと少し。最後まで丁寧に。最終種目、頑張りましょう。"]},
+          "あと少し。最終種目、最後まで！"]},
 ];
 
 const DURATION = 30;
-let idx=0, remain=DURATION, timer=null, paused=false;
-let soundEnabled = true;
-let voiceSpoken = [false, false, false]; // start / mid / near-end
+let idx = 0, remain = DURATION, timer = null, paused = false;
+let voiceSpoken = [false, false, false];
+
+// ===== サウンド状態 =====
+let bgmOn = true;
+let voiceOn = true;
+
+function updateSoundBtns() {
+  const b = document.getElementById('btnBgm');
+  const v = document.getElementById('btnVoice');
+  b.className = 's-btn ' + (bgmOn ? 'on' : 'off');
+  b.innerHTML = '<span class="ico">' + (bgmOn ? '🎵' : '🔇') + '</span><span>BGM</span>';
+  v.className = 's-btn ' + (voiceOn ? 'on' : 'off');
+  v.innerHTML = '<span class="ico">' + (voiceOn ? '🎙' : '🔕') + '</span><span>音声ガイド</span>';
+}
+
+function toggleBgm() {
+  bgmOn = !bgmOn;
+  updateSoundBtns();
+  if (bgmOn) {
+    if (document.getElementById('sc-ex').classList.contains('active') && !paused) startBGM();
+  } else {
+    pauseBGM();
+  }
+}
+
+function toggleVoice() {
+  voiceOn = !voiceOn;
+  updateSoundBtns();
+  if (!voiceOn) {
+    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch(e){}
+    hideComment();
+  }
+}
 
 // ===== BGM (Web Audio API) =====
-// ラジオ体操風アップビートメロディ
 const BPM = 126;
 const BEAT = 60 / BPM;
 
-// [Hz, beats] 0=rest
+// ラジオ体操風メロディ [Hz, beats]
 const MELODY = [
-  [659,0.5],[784,0.5],[1047,1],[784,0.5],[659,0.5],[587,1],
-  [659,0.5],[784,0.5],[880,0.5],[784,0.5],[659,2],
-  [523,0.5],[659,0.5],[784,1],[659,0.5],[523,0.5],[440,1],
-  [523,0.5],[587,0.5],[659,0.5],[587,0.5],[523,2],
-  [784,0.5],[880,0.5],[1047,1],[880,0.5],[784,0.5],[659,1],
-  [784,0.5],[659,0.5],[587,0.5],[523,0.5],[659,2],
-  [523,0.5],[659,0.5],[784,1],[659,0.5],[523,0.5],[440,1],
-  [494,0.5],[523,0.5],[587,0.5],[523,0.5],[523,2],
+  [659,.5],[784,.5],[1047,1],[784,.5],[659,.5],[587,1],
+  [659,.5],[784,.5],[880,.5],[784,.5],[659,2],
+  [523,.5],[659,.5],[784,1],[659,.5],[523,.5],[440,1],
+  [523,.5],[587,.5],[659,.5],[587,.5],[523,2],
+  [784,.5],[880,.5],[1047,1],[880,.5],[784,.5],[659,1],
+  [784,.5],[659,.5],[587,.5],[523,.5],[659,2],
+  [523,.5],[659,.5],[784,1],[659,.5],[523,.5],[440,1],
+  [494,.5],[523,.5],[587,.5],[523,.5],[523,2],
 ];
-
 const BASS = [
-  [131,2],[196,2],[131,2],[196,2],
-  [131,2],[196,2],[131,2],[196,2],
-  [131,2],[196,2],[131,2],[196,2],
-  [131,2],[196,2],[131,4],
-  [131,2],[196,2],[131,2],[196,2],
-  [131,2],[196,2],[131,2],[196,2],
-  [131,2],[196,2],[131,2],[196,2],
-  [131,2],[196,2],[131,4],
+  [131,2],[196,2],[131,2],[196,2],[131,2],[196,2],[131,4],
+  [131,2],[196,2],[131,2],[196,2],[131,2],[196,2],[131,4],
 ];
 
 let audioCtx = null;
-let bgmPlaying = false;
-let melodyIdx = 0, bassIdx = 0;
-let melodyNext = 0, bassNext = 0;
+let bgmActive = false;
+let mIdx = 0, bIdx = 0, mNext = 0, bNext = 0;
 let schedId = null;
 
-function getCtx() {
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function getAudioCtx() {
+  if (!audioCtx || audioCtx.state === 'closed') {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    audioCtx = new AC();
   }
   return audioCtx;
 }
 
 function playOsc(freq, start, dur, type, vol) {
-  if (!audioCtx || freq === 0) return;
-  const osc = audioCtx.createOscillator();
-  const g = audioCtx.createGain();
-  osc.connect(g); g.connect(audioCtx.destination);
-  osc.type = type || 'sine';
-  osc.frequency.value = freq;
-  g.gain.setValueAtTime(0, start);
-  g.gain.linearRampToValueAtTime(vol || 0.07, start + 0.02);
-  g.gain.exponentialRampToValueAtTime(0.0001, start + dur * 0.92);
-  osc.start(start);
-  osc.stop(start + dur);
+  try {
+    if (!audioCtx || freq === 0) return;
+    const osc = audioCtx.createOscillator();
+    const g   = audioCtx.createGain();
+    osc.connect(g); g.connect(audioCtx.destination);
+    osc.type = type;
+    osc.frequency.value = freq;
+    g.gain.setValueAtTime(0, start);
+    g.gain.linearRampToValueAtTime(vol, start + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + Math.max(dur * 0.9, dur - 0.02));
+    osc.start(start);
+    osc.stop(start + dur);
+  } catch(e) {}
 }
 
 function schedBGM() {
-  if (!audioCtx || !bgmPlaying) return;
-  const ahead = 0.15;
-  const now = audioCtx.currentTime;
-
-  while (melodyNext < now + ahead) {
-    const [f, b] = MELODY[melodyIdx % MELODY.length];
-    playOsc(f, melodyNext, b * BEAT, 'sine', 0.08);
-    melodyNext += b * BEAT;
-    melodyIdx++;
+  if (!audioCtx || !bgmActive) return;
+  const ahead = 0.15, now = audioCtx.currentTime;
+  while (mNext < now + ahead) {
+    const [f,b] = MELODY[mIdx % MELODY.length];
+    playOsc(f, mNext, b * BEAT, 'sine', 0.07);
+    mNext += b * BEAT; mIdx++;
   }
-  while (bassNext < now + ahead) {
-    const [f, b] = BASS[bassIdx % BASS.length];
-    playOsc(f, bassNext, b * BEAT * 0.6, 'triangle', 0.04);
-    bassNext += b * BEAT;
-    bassIdx++;
+  while (bNext < now + ahead) {
+    const [f,b] = BASS[bIdx % BASS.length];
+    playOsc(f, bNext, b * BEAT * 0.55, 'triangle', 0.035);
+    bNext += b * BEAT; bIdx++;
   }
   schedId = setTimeout(schedBGM, 60);
 }
 
 function startBGM() {
-  if (bgmPlaying) return;
-  const ctx = getCtx();
-  if (ctx.state === 'suspended') ctx.resume();
-  bgmPlaying = true;
-  melodyIdx = 0; bassIdx = 0;
-  melodyNext = ctx.currentTime + 0.05;
-  bassNext = ctx.currentTime + 0.05;
-  schedBGM();
+  if (bgmActive) return;
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+  try {
+    if (ctx.state === 'suspended') ctx.resume();
+    bgmActive = true;
+    mNext = ctx.currentTime + 0.05;
+    bNext = ctx.currentTime + 0.05;
+    schedBGM();
+  } catch(e) { bgmActive = false; }
 }
 
-function stopBGM() {
-  bgmPlaying = false;
+function pauseBGM() {
+  bgmActive = false;
   clearTimeout(schedId);
-  if (audioCtx && audioCtx.state !== 'closed') audioCtx.suspend();
 }
 
-// ===== 音声コメント (speechSynthesis) =====
+// ===== 音声ガイド (speechSynthesis) =====
 let voices = [];
 function loadVoices() {
-  voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+  try { voices = window.speechSynthesis.getVoices(); } catch(e){}
 }
-if (window.speechSynthesis) {
-  window.speechSynthesis.onvoiceschanged = loadVoices;
-  loadVoices();
-}
+try {
+  if (window.speechSynthesis) {
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+    loadVoices();
+  }
+} catch(e){}
 
-function speak(text) {
-  if (!soundEnabled || !window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'ja-JP';
-  u.rate = 0.88;
-  u.pitch = 1.05;
-  u.volume = 1.0;
-  const jaVoice = voices.find(v => v.lang && v.lang.startsWith('ja'));
-  if (jaVoice) u.voice = jaVoice;
-  window.speechSynthesis.speak(u);
-  showComment(text);
-}
+let commentTimer = null;
 
 function showComment(text) {
   const el = document.getElementById('commentBubble');
   const tx = document.getElementById('commentText');
+  if (!el || !tx) return;
   tx.textContent = text;
   el.classList.add('active');
-  clearTimeout(el._hideTimer);
-  el._hideTimer = setTimeout(() => el.classList.remove('active'), 4500);
+  clearTimeout(commentTimer);
+  commentTimer = setTimeout(() => el.classList.remove('active'), 5000);
 }
 
-// ===== サウンドトグル =====
-function toggleSound() {
-  soundEnabled = !soundEnabled;
-  const btn = document.getElementById('soundBtn');
-  if (soundEnabled) {
-    btn.textContent = '🔊 BGM';
-    btn.classList.remove('muted');
-    if (document.getElementById('sc-ex').classList.contains('active')) startBGM();
-  } else {
-    btn.textContent = '🔇 BGM';
-    btn.classList.add('muted');
-    stopBGM();
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
-    document.getElementById('commentBubble').classList.remove('active');
-  }
+function hideComment() {
+  clearTimeout(commentTimer);
+  const el = document.getElementById('commentBubble');
+  if (el) el.classList.remove('active');
+}
+
+function speak(text) {
+  // コメントは常に表示（音声OFFでもテキストは出す）
+  showComment(text);
+  if (!voiceOn) return;
+  try {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'ja-JP'; u.rate = 0.88; u.pitch = 1.05; u.volume = 1.0;
+    const jv = voices.find(v => v.lang && v.lang.startsWith('ja'));
+    if (jv) u.voice = jv;
+    window.speechSynthesis.speak(u);
+  } catch(e){}
 }
 
 // ===== メイン制御 =====
 function setScreen(id) {
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
 }
+
 function buildDots() {
-  const d = document.getElementById("dots"); d.innerHTML="";
-  MOVES.forEach(() => { const e = document.createElement("i"); d.appendChild(e); });
+  const d = document.getElementById('dots'); d.innerHTML = '';
+  MOVES.forEach(() => { const e = document.createElement('i'); d.appendChild(e); });
 }
+
 function renderDots() {
-  document.querySelectorAll("#dots i").forEach((e,i) => {
-    e.className = i<idx ? "done" : (i===idx ? "now" : "");
+  document.querySelectorAll('#dots i').forEach((e,i) => {
+    e.className = i < idx ? 'done' : (i === idx ? 'now' : '');
   });
 }
+
+function updateTimer() {
+  document.getElementById('ringNum').textContent = remain;
+  document.getElementById('ringFg').style.strokeDashoffset = 100 - (remain / DURATION * 100);
+  document.getElementById('camTc').textContent = '00:00:' + String(remain).padStart(2,'0');
+}
+
 function loadMove() {
   const m = MOVES[idx];
-  document.body.setAttribute("data-move", m.move);
-  document.getElementById("exNum").textContent = "EX "+String(idx+1).padStart(2,"0")+" / 06";
-  document.getElementById("exTitle").textContent = m.title;
-  document.getElementById("exInst").innerHTML = m.inst + '<span class="camouflage">'+m.camo+'</span>';
-  document.getElementById("camTr").textContent = "ZONE · "+m.zone;
+  document.body.setAttribute('data-move', m.move);
+  document.getElementById('exNum').textContent = 'EX ' + String(idx+1).padStart(2,'0') + ' / 06';
+  document.getElementById('exTitle').textContent = m.title;
+  document.getElementById('exInst').innerHTML = m.inst + '<span class="camouflage">'+m.camo+'</span>';
+  document.getElementById('camTr').textContent = 'ZONE · ' + m.zone;
   renderDots();
   remain = DURATION;
   voiceSpoken = [false, false, false];
   updateTimer();
-  // 開始アナウンス（少し遅らせてBGMとかぶらせない）
-  setTimeout(() => speak(m.voice[0]), 600);
+  setTimeout(() => speak(m.voice[0]), 500);
 }
-function updateTimer() {
-  document.getElementById("ringNum").textContent = remain;
-  const off = 100 - (remain/DURATION*100);
-  document.getElementById("ringFg").style.strokeDashoffset = off;
-  const ss = String(remain).padStart(2,"0");
-  document.getElementById("camTc").textContent = "00:00:"+ss;
-}
+
 function tick() {
   if (paused) return;
   remain--;
   if (remain < 0) { nextMove(); return; }
   updateTimer();
-  // コメントタイミング
-  const m = MOVES[idx];
-  if (remain === 15 && !voiceSpoken[1]) {
-    voiceSpoken[1] = true;
-    speak(m.voice[1]);
-  }
-  if (remain === 5 && !voiceSpoken[2]) {
-    voiceSpoken[2] = true;
-    speak(m.voice[2]);
-  }
+  const v = MOVES[idx].voice;
+  if (remain === 15 && !voiceSpoken[1]) { voiceSpoken[1] = true; speak(v[1]); }
+  if (remain === 5  && !voiceSpoken[2]) { voiceSpoken[2] = true; speak(v[2]); }
 }
-function startTimer() {
+
+function startProgram() {
+  idx = 0; paused = false;
+  buildDots(); setScreen('sc-ex'); loadMove();
+  if (bgmOn) startBGM();
   clearInterval(timer);
   timer = setInterval(tick, 1000);
 }
-function startProgram() {
-  idx = 0; paused = false; buildDots(); setScreen("sc-ex"); loadMove();
-  if (soundEnabled) startBGM();
-  startTimer();
-}
+
 function nextMove() {
   idx++;
   if (idx >= MOVES.length) {
-    clearInterval(timer);
-    stopBGM();
-    setTimeout(() => speak("六種目完了。任務達成です。誰にもバレずに体操完了。お疲れ様でした！"), 300);
-    setScreen("sc-done");
-    document.body.setAttribute("data-move","feet");
+    clearInterval(timer); pauseBGM(); setScreen('sc-done');
+    document.body.setAttribute('data-move','feet');
+    setTimeout(() => speak('六種目完了。任務達成です。誰にもバレずに体操完了。お疲れ様でした！'), 400);
     return;
   }
-  loadMove(); startTimer();
+  loadMove();
 }
+
 function togglePause() {
   paused = !paused;
-  document.getElementById("pauseBtn").textContent = paused ? "▶ 再開" : "⏸ 一時停止";
+  document.getElementById('pauseBtn').textContent = paused ? '▶ 再開' : '⏸ 一時停止';
   if (paused) {
-    stopBGM();
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    pauseBGM();
+    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch(e){}
   } else {
-    if (soundEnabled) startBGM();
+    if (bgmOn) startBGM();
   }
 }
+
 function resetProgram() {
-  clearInterval(timer); idx = 0; paused = false;
-  stopBGM();
-  if (window.speechSynthesis) window.speechSynthesis.cancel();
-  document.getElementById('commentBubble').classList.remove('active');
-  document.getElementById("pauseBtn").textContent = "⏸ 一時停止";
-  setScreen("sc-start");
-  document.body.setAttribute("data-move","feet");
+  clearInterval(timer); pauseBGM(); idx = 0; paused = false;
+  try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch(e){}
+  hideComment();
+  document.getElementById('pauseBtn').textContent = '⏸ 一時停止';
+  document.body.setAttribute('data-move','feet');
+  setScreen('sc-start');
 }
 </script>
 </body>
