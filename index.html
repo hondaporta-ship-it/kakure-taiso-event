@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
 <title>隠れイベント体操</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,19 +38,19 @@
     animation:rec 1.2s infinite;box-shadow:0 0 6px var(--red);}
   @keyframes rec{50%{opacity:.2;}}
 
-  /* ── サウンドコントロールバー ── */
+  /* ── サウンドトグル（1ボタン） ── */
   .sound-bar{
-    display:flex;gap:6px;margin-bottom:10px;
+    margin-bottom:10px;
   }
   .s-btn{
-    flex:1;display:flex;align-items:center;justify-content:center;gap:5px;
-    font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:700;
-    padding:8px 0;border-radius:9px;cursor:pointer;border:none;
+    width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
+    font-family:"Zen Kaku Gothic New",sans-serif;font-size:14px;font-weight:700;
+    padding:10px 0;border-radius:10px;cursor:pointer;border:none;
     letter-spacing:.04em;transition:all .2s;
   }
   .s-btn.on {background:rgba(63,240,200,.12);color:var(--cyan);border:1px solid rgba(63,240,200,.35);}
-  .s-btn.off{background:rgba(255,255,255,.03);color:#3a564d;border:1px solid rgba(255,255,255,.06);}
-  .s-btn .ico{font-size:15px;line-height:1;}
+  .s-btn.off{background:rgba(255,90,77,.08);color:#ff7a6e;border:1px solid rgba(255,90,77,.3);}
+  .s-btn .ico{font-size:18px;line-height:1;}
 
   /* ── モニター ── */
   .monitor{
@@ -176,13 +178,10 @@
     <span class="rec"><i></i>REC</span>
   </div>
 
-  <!-- ★ サウンドコントロールバー（常時表示） -->
+  <!-- ★ サウンドトグル（1ボタン、シンプル） -->
   <div class="sound-bar">
-    <button class="s-btn on" id="btnBgm" onclick="toggleBgm()">
-      <span class="ico">🎵</span><span>BGM</span>
-    </button>
-    <button class="s-btn on" id="btnVoice" onclick="toggleVoice()">
-      <span class="ico">🎙</span><span>音声ガイド</span>
+    <button class="s-btn on" id="btnSound" onclick="toggleSound()">
+      <span class="ico" id="soundIco">🔊</span><span id="soundLabel">音あり（BGM＋音声ガイド）</span>
     </button>
   </div>
 
@@ -335,37 +334,38 @@ const DURATION = 30;
 let idx = 0, remain = DURATION, timer = null, paused = false;
 let voiceSpoken = [false, false, false];
 
-// ===== サウンド状態 =====
-let bgmOn = true;
-let voiceOn = true;
+// ===== サウンド状態（1トグル） =====
+let soundOn = true; // BGM＋音声ガイド まとめてON/OFF
 
-function updateSoundBtns() {
-  const b = document.getElementById('btnBgm');
-  const v = document.getElementById('btnVoice');
-  b.className = 's-btn ' + (bgmOn ? 'on' : 'off');
-  b.innerHTML = '<span class="ico">' + (bgmOn ? '🎵' : '🔇') + '</span><span>BGM</span>';
-  v.className = 's-btn ' + (voiceOn ? 'on' : 'off');
-  v.innerHTML = '<span class="ico">' + (voiceOn ? '🎙' : '🔕') + '</span><span>音声ガイド</span>';
+function updateSoundBtn() {
+  const btn = document.getElementById('btnSound');
+  const ico = document.getElementById('soundIco');
+  const lbl = document.getElementById('soundLabel');
+  if (soundOn) {
+    btn.className = 's-btn on';
+    ico.textContent = '🔊';
+    lbl.textContent = '音あり（BGM＋音声ガイド）';
+  } else {
+    btn.className = 's-btn off';
+    ico.textContent = '🔇';
+    lbl.textContent = '音なし（現場・サイレントモード）';
+  }
 }
 
-function toggleBgm() {
-  bgmOn = !bgmOn;
-  updateSoundBtns();
-  if (bgmOn) {
+function toggleSound() {
+  soundOn = !soundOn;
+  updateSoundBtn();
+  if (soundOn) {
     if (document.getElementById('sc-ex').classList.contains('active') && !paused) startBGM();
   } else {
     pauseBGM();
+    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch(e){}
   }
 }
 
-function toggleVoice() {
-  voiceOn = !voiceOn;
-  updateSoundBtns();
-  if (!voiceOn) {
-    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch(e){}
-    hideComment();
-  }
-}
+// bgmOn / voiceOn は soundOn で統合
+Object.defineProperty(window,'bgmOn',{get:()=>soundOn});
+Object.defineProperty(window,'voiceOn',{get:()=>soundOn});
 
 // ===== BGM (Web Audio API) =====
 const BPM = 126;
@@ -435,6 +435,7 @@ function schedBGM() {
 
 function startBGM() {
   if (bgmActive) return;
+  if (!soundOn) return;   // ★ 音なしモードでは起動しない
   const ctx = getAudioCtx();
   if (!ctx) return;
   try {
@@ -482,12 +483,14 @@ function hideComment() {
 }
 
 function speak(text) {
-  // コメントは常に表示（音声OFFでもテキストは出す）
+  // テキストコメントは音ON/OFFに関わらず常に表示
   showComment(text);
-  if (!voiceOn) return;
+  if (!soundOn) return;   // ★ 音なしモードでは音声読み上げしない
   try {
     if (!window.speechSynthesis) return;
     window.speechSynthesis.cancel();
+    // 毎回 getVoices() してリトライ（ポータル経由でも確実に取得）
+    if (!voices.length) voices = window.speechSynthesis.getVoices();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'ja-JP'; u.rate = 0.88; u.pitch = 1.05; u.volume = 1.0;
     const jv = voices.find(v => v.lang && v.lang.startsWith('ja'));
@@ -546,7 +549,7 @@ function tick() {
 function startProgram() {
   idx = 0; paused = false;
   buildDots(); setScreen('sc-ex'); loadMove();
-  if (bgmOn) startBGM();
+  if (soundOn) startBGM();   // ★ soundOn で統一
   clearInterval(timer);
   timer = setInterval(tick, 1000);
 }
@@ -569,7 +572,7 @@ function togglePause() {
     pauseBGM();
     try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch(e){}
   } else {
-    if (bgmOn) startBGM();
+    if (soundOn) startBGM();
   }
 }
 
@@ -581,6 +584,13 @@ function resetProgram() {
   document.body.setAttribute('data-move','feet');
   setScreen('sc-start');
 }
+
+// AudioContext のアンロック（ポータル経由でも確実に動作）
+document.addEventListener('touchstart', function unlock() {
+  try {
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  } catch(e){}
+}, {once: true, passive: true});
 </script>
 </body>
 </html>
